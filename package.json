@@ -1,7 +1,7 @@
 {
   "name": "date-picker-challenge",
   "private": true,
-  "version": "0.0.0",
+  "version": "1.0.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -9,6 +9,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@js-temporal/polyfill": "^0.5.1",
     "vue": "^3.5.12"
   },
   "devDependencies": {

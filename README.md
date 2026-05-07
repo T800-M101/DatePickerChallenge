@@ -39,3 +39,8 @@ Following the requirement to use modern standards, this project leverages the **
 Run the local dev server:
 ```bash
 npm run dev
+
+
+Note: "The Temporal API is a TC39 Stage 3 proposal. The @js-temporal/polyfill is used solely to access the native Temporal spec in environments where it isn't yet built-in — it is not a date utility library. The logic contains zero date manipulation helpers from third parties."
+
+I chose a 6-week (42 day) grid specifically, because 42 days is the minimum number needed to guarantee that any month (including a 31-day month starting on a Saturday) can be displayed fully without the grid changing height, which prevents layout shift.
