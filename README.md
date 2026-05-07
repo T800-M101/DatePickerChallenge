@@ -27,8 +27,8 @@ Following the requirement to use modern standards, this project leverages the **
 ### Installation
 1.  Clone the repository:
     ```bash
-    git clone <your-repository-url>
-    cd date-picker-challenge
+    git clone https://github.com/T800-M101/DatePickerChallenge.git
+    cd DatePickerChallenge
     ```
 2.  Install dependencies:
     ```bash
