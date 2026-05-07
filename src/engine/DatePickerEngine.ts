@@ -86,6 +86,8 @@ export class DatePickerEngine implements IDatePickerEngine {
    *
    * Temporal.PlainDate.dayOfWeek returns 1=Monday … 7=Sunday
    * We normalize to 0=Sunday … 6=Saturday.
+   * 6-week (42 day) grid is the minimum number needed to guarantee that any month (including a 31-day 
+   * month starting on a *Saturday) can be displayed fully without the grid changing height, which prevents layout shift
    */
   private buildGrid(): CalendarWeek[] {
     const firstOfMonth = this.viewDate.with({ day: 1 });

@@ -1,104 +1,3 @@
-<template>
-  <div class="date-picker" :class="{ 'is-open': isOpen }">
-    <!-- Input Field -->
-    <div class="date-picker__input-wrapper">
-      <input ref="inputRef" type="text" :value="displayValue" :placeholder="placeholder" class="date-picker__input"
-        @focus="handleInputFocus" @click="handleInputClick" @keydown="handleInputKeydown" readonly />
-      <button type="button" class="date-picker__clear-btn" v-if="displayValue && showClearButton" @click="handleClear"
-        aria-label="Clear date">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <line x1="18" y1="6" x2="6" y2="18"></line>
-          <line x1="6" y1="6" x2="18" y2="18"></line>
-        </svg>
-      </button>
-      <button type="button" class="date-picker__calendar-btn" @click="toggleCalendar" aria-label="Open calendar">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
-          <line x1="16" y1="2" x2="16" y2="6"></line>
-          <line x1="8" y1="2" x2="8" y2="6"></line>
-          <line x1="3" y1="10" x2="21" y2="10"></line>
-        </svg>
-      </button>
-    </div>
-
-    <!-- Calendar Popover -->
-    <div v-if="isOpen" class="date-picker__popover" ref="popoverRef" @keydown.esc="closeCalendar">
-      <!-- Header -->
-      <div class="date-picker__header">
-        <button type="button" class="date-picker__nav-btn" @click="handlePrevYear" aria-label="Previous year">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <polyline points="15 18 9 12 15 6"></polyline>
-          </svg>
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <polyline points="15 18 9 12 15 6"></polyline>
-          </svg>
-        </button>
-
-        <button type="button" class="date-picker__nav-btn" @click="handlePrevMonth" aria-label="Previous month">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <polyline points="15 18 9 12 15 6"></polyline>
-          </svg>
-        </button>
-
-        <div class="date-picker__month-year">
-          <span class="date-picker__month">{{ monthLabel.split(' ')[0] }}</span>
-          <span class="date-picker__year">{{ monthLabel.split(' ')[1] }}</span>
-        </div>
-
-        <button type="button" class="date-picker__nav-btn" @click="handleNextMonth" aria-label="Next month">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <polyline points="9 18 15 12 9 6"></polyline>
-          </svg>
-        </button>
-
-        <button type="button" class="date-picker__nav-btn" @click="handleNextYear" aria-label="Next year">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <polyline points="9 18 15 12 9 6"></polyline>
-          </svg>
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <polyline points="9 18 15 12 9 6"></polyline>
-          </svg>
-        </button>
-      </div>
-
-      <!-- Week Day Headers -->
-      <div class="date-picker__weekdays">
-        <div v-for="(day, index) in weekDayHeaders" :key="index" class="date-picker__weekday">
-          {{ day }}
-        </div>
-      </div>
-
-      <!-- Calendar Grid -->
-      <div class="date-picker__grid">
-        <button v-for="(day, index) in flatGrid" :key="index" :tabindex="index === focusedIndex ? 0 : -1" :class="[
-          'date-picker__day',
-          {
-            'date-picker__day--focused': index === focusedIndex,
-            'date-picker__day--current-month': day.isCurrentMonth,
-            'date-picker__day--other-month': !day.isCurrentMonth,
-            'date-picker__day--today': day.isToday,
-            'date-picker__day--selected': day.isSelected,
-            'date-picker__day--disabled': day.isDisabled
-          }
-        ]" @click="handleDateSelect(day)" @keydown="handleCalendarKeydown" :disabled="day.isDisabled"
-          :aria-label="`Select ${day.date.toString()}`" :aria-selected="day.isSelected">
-          {{ day.date.day }}
-        </button>
-      </div>
-
-      <!-- Footer -->
-      <div class="date-picker__footer">
-        <button type="button" class="date-picker__footer-btn" @click="handleGoToToday">
-          Today
-        </button>
-        <button type="button" class="date-picker__footer-btn" @click="handleClearSelection">
-          Clear
-        </button>
-      </div>
-    </div>
-  </div>
-</template>
-
 <script setup lang="ts">
 import {
   ref,
@@ -150,6 +49,9 @@ const monthLabel = computed(() => state.monthLabel);
 
 const weekDayHeaders = computed(() => state.weekDayHeaders);
 
+// Flag to prevent race conditions
+let isOpening = false;
+
 const updateState = () => {
   Object.assign(state, engine.getState());
 };
@@ -192,20 +94,31 @@ const focusCurrentDay = async () => {
 };
 
 const openCalendar = async () => {
+  if (isOpening) return;
+  isOpening = true;
+
   isOpen.value = true;
 
   syncFocusedIndex();
 
   await focusCurrentDay();
+
+  isOpening = false;
 };
 
-const closeCalendar = () => {
+const closeCalendar = (shouldBlur: boolean = true) => {
   isOpen.value = false;
+  focusedIndex.value = -1;
+
+  // Remove focus from input when closing if specified
+  if (shouldBlur && inputRef.value) {
+    inputRef.value.blur();
+  }
 };
 
 const toggleCalendar = async () => {
   if (isOpen.value) {
-    closeCalendar();
+    closeCalendar(true);
   } else {
     await openCalendar();
   }
@@ -213,33 +126,25 @@ const toggleCalendar = async () => {
 
 const handlePrevMonth = async () => {
   engine.prevMonth();
-
   updateState();
-
   await focusCurrentDay();
 };
 
 const handleNextMonth = async () => {
   engine.nextMonth();
-
   updateState();
-
   await focusCurrentDay();
 };
 
 const handlePrevYear = async () => {
   engine.prevYear();
-
   updateState();
-
   await focusCurrentDay();
 };
 
 const handleNextYear = async () => {
   engine.nextYear();
-
   updateState();
-
   await focusCurrentDay();
 };
 
@@ -256,7 +161,7 @@ const handleDateSelect = (day: CalendarDay) => {
 
     emit('select', day.date);
 
-    closeCalendar();
+    closeCalendar(true); // Blur input on selection
   }
 };
 
@@ -272,7 +177,7 @@ const handleGoToToday = () => {
 
   emit('select', engine.getState().selectedDate);
 
-  closeCalendar();
+  closeCalendar(true); // Blur input on selection
 };
 
 const handleClearSelection = () => {
@@ -285,31 +190,43 @@ const handleClearSelection = () => {
   emit('select', null);
 
   syncFocusedIndex();
+
+  // Don't close calendar, so no need to blur
 };
 
 const handleClear = () => {
   handleClearSelection();
 };
 
-const handleInputFocus = async () => {
-  await openCalendar();
+// Do nothing on focus to prevent double triggers
+const handleInputFocus = () => {
+  // Intentionally empty - click handler handles toggling
 };
 
-const handleInputClick = async () => {
-  await openCalendar();
+// Toggle calendar on click with proper event handling
+const handleInputClick = async (event: MouseEvent) => {
+  event.stopPropagation(); // Prevent event bubbling
+
+  if (isOpen.value) {
+    closeCalendar(true); // Blur input when closing via click
+  } else {
+    await openCalendar();
+  }
 };
 
-const handleInputKeydown = async (
-  event: KeyboardEvent
-) => {
+const handleInputKeydown = async (event: KeyboardEvent) => {
   if (event.key === 'Enter') {
     event.preventDefault();
 
-    await openCalendar();
+    if (isOpen.value) {
+      closeCalendar(false); // Don't blur input on Enter close
+    } else {
+      await openCalendar();
+    }
   }
 
-  if (event.key === 'Escape') {
-    closeCalendar();
+  if (event.key === 'Escape' && isOpen.value) {
+    closeCalendar(false); // Don't blur input on Escape
   }
 };
 
@@ -321,27 +238,32 @@ const handleCalendarKeydown = async (
   switch (event.key) {
     case 'ArrowRight':
       event.preventDefault();
+      event.stopPropagation();
       nextIndex++;
       break;
 
     case 'ArrowLeft':
       event.preventDefault();
+      event.stopPropagation();
       nextIndex--;
       break;
 
     case 'ArrowDown':
       event.preventDefault();
+      event.stopPropagation();
       nextIndex += 7;
       break;
 
     case 'ArrowUp':
       event.preventDefault();
+      event.stopPropagation();
       nextIndex -= 7;
       break;
 
     case 'Enter':
     case ' ':
       event.preventDefault();
+      event.stopPropagation();
 
       const selectedDay =
         flatGrid.value[focusedIndex.value];
@@ -353,7 +275,7 @@ const handleCalendarKeydown = async (
       return;
 
     case 'Escape':
-      closeCalendar();
+      closeCalendar(false); // Don't blur input on Escape
       return;
 
     default:
@@ -441,14 +363,26 @@ const handleClickOutside = (
 ) => {
   const target = event.target as HTMLElement;
 
+  // Don't close if clicking the calendar button or input
+  const isCalendarButton = target.closest('.date-picker__calendar-btn');
+  const isInput = target.closest('.date-picker__input');
+
+  if (isCalendarButton || isInput) {
+    return;
+  }
+
   if (
     inputRef.value &&
     !inputRef.value.contains(target) &&
     popoverRef.value &&
     !popoverRef.value.contains(target)
   ) {
-    closeCalendar();
+    closeCalendar(true); // Blur input when clicking outside
   }
+};
+
+const handleEscapeKey = () => {
+  closeCalendar(false); // Don't blur input on Escape
 };
 
 onMounted(() => {
@@ -502,6 +436,109 @@ watch(
 );
 </script>
 
+/************************************** TEMPLATE ************************************************/
+<template>
+  <div class="date-picker" :class="{ 'is-open': isOpen }">
+    <!-- Input Field -->
+    <div class="date-picker__input-wrapper">
+      <input ref="inputRef" type="text" :value="displayValue" :placeholder="placeholder" class="date-picker__input"
+        @focus="handleInputFocus" @click="handleInputClick" @keydown="handleInputKeydown" readonly />
+      <button type="button" class="date-picker__clear-btn" v-if="displayValue && showClearButton" @click="handleClear"
+        aria-label="Clear date">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
+      </button>
+      <button type="button" class="date-picker__calendar-btn" @click.stop="toggleCalendar" aria-label="Open calendar">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+          <line x1="16" y1="2" x2="16" y2="6"></line>
+          <line x1="8" y1="2" x2="8" y2="6"></line>
+          <line x1="3" y1="10" x2="21" y2="10"></line>
+        </svg>
+      </button>
+    </div>
+
+    <!-- Calendar Popover -->
+    <div v-if="isOpen" class="date-picker__popover" ref="popoverRef" @keydown.esc="handleEscapeKey">
+      <!-- Header -->
+      <div class="date-picker__header">
+        <button type="button" class="date-picker__nav-btn" @click="handlePrevYear" aria-label="Previous year">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="15 18 9 12 15 6"></polyline>
+          </svg>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="15 18 9 12 15 6"></polyline>
+          </svg>
+        </button>
+
+        <button type="button" class="date-picker__nav-btn" @click="handlePrevMonth" aria-label="Previous month">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="15 18 9 12 15 6"></polyline>
+          </svg>
+        </button>
+
+        <div class="date-picker__month-year">
+          <span class="date-picker__month">{{ monthLabel.split(' ')[0] }}</span>
+          <span class="date-picker__year">{{ monthLabel.split(' ')[1] }}</span>
+        </div>
+
+        <button type="button" class="date-picker__nav-btn" @click="handleNextMonth" aria-label="Next month">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="9 18 15 12 9 6"></polyline>
+          </svg>
+        </button>
+
+        <button type="button" class="date-picker__nav-btn" @click="handleNextYear" aria-label="Next year">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="9 18 15 12 9 6"></polyline>
+          </svg>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="9 18 15 12 9 6"></polyline>
+          </svg>
+        </button>
+      </div>
+
+      <!-- Week Day Headers -->
+      <div class="date-picker__weekdays">
+        <div v-for="(day, index) in weekDayHeaders" :key="index" class="date-picker__weekday">
+          {{ day }}
+        </div>
+      </div>
+
+      <!-- Calendar Grid -->
+      <div class="date-picker__grid">
+        <button v-for="(day, index) in flatGrid" :key="index" :tabindex="index === focusedIndex ? 0 : -1" :class="[
+          'date-picker__day',
+          {
+            'date-picker__day--focused': index === focusedIndex,
+            'date-picker__day--current-month': day.isCurrentMonth,
+            'date-picker__day--other-month': !day.isCurrentMonth,
+            'date-picker__day--today': day.isToday,
+            'date-picker__day--selected': day.isSelected,
+            'date-picker__day--disabled': day.isDisabled
+          }
+        ]" @click="handleDateSelect(day)" @keydown="handleCalendarKeydown" :disabled="day.isDisabled"
+          :aria-label="`Select ${day.date.toString()}`" :aria-selected="day.isSelected">
+          {{ day.date.day }}
+        </button>
+      </div>
+
+      <!-- Footer -->
+      <div class="date-picker__footer">
+        <button type="button" class="date-picker__footer-btn" @click="handleGoToToday">
+          Today
+        </button>
+        <button type="button" class="date-picker__footer-btn" @click="handleClearSelection">
+          Clear
+        </button>
+      </div>
+    </div>
+  </div>
+</template>
+
+/************************************** STYLES ************************************************/
 <style scoped>
 .date-picker {
   position: relative;
@@ -731,5 +768,12 @@ watch(
 
 .date-picker__day--focused {
   outline: 2px solid #667eea;
+}
+
+.date-picker__calendar-btn:focus,
+.date-picker__calendar-btn:focus-visible,
+.date-picker__calendar-btn:active {
+  outline: none;
+  box-shadow: none;
 }
 </style>

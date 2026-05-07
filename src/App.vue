@@ -1,3 +1,26 @@
+<script setup lang="ts">
+import { ref } from 'vue';
+import DatePicker from './components/DatePicker.vue';
+import { Temporal } from '@js-temporal/polyfill';
+
+const selectedDate = ref<string | null>(null);
+const handleDateSelect = (date: Temporal.PlainDate | null) => {
+  console.log('Date selected:', date?.toString());
+};
+
+const features = [
+  'Pure TypeScript engine - zero framework dependencies',
+  'Temporal API for robust date handling',
+  'Full keyboard navigation (Esc to close, Enter to select, arrow keys to navigate the calendar)',
+  'Click outside to close',
+  'Accessible (ARIA labels, keyboard support)',
+  'CSS Custom Properties for theming',
+  'Responsive design',
+  'Smooth animations'
+];
+</script>
+
+/************************************** TEMPLATE ************************************************/
 <template>
   <div class="app">
     <div class="demo-container">
@@ -16,15 +39,11 @@
 
       <div class="demo-section">
         <h2 class="demo-subtitle">Features</h2>
+
         <ul class="demo-features">
-          <li>✅ Pure TypeScript engine - zero framework dependencies</li>
-          <li>✅ Temporal API for robust date handling</li>
-          <li>✅ Full keyboard navigation (Esc to close, Enter to select, Arrow keys to navigate the calendar)</li>
-          <li>✅ Click outside to close</li>
-          <li>✅ Accessible (ARIA labels, keyboard support)</li>
-          <li>✅ CSS Custom Properties for theming</li>
-          <li>✅ Responsive design</li>
-          <li>✅ Smooth animations</li>
+          <li v-for="feature in features" :key="feature">
+            ✅ {{ feature }}
+          </li>
         </ul>
       </div>
 
@@ -32,17 +51,7 @@
   </div>
 </template>
 
-<script setup lang="ts">
-import { ref } from 'vue';
-import DatePicker from './components/DatePicker.vue';
-import { Temporal } from '@js-temporal/polyfill';
-
-const selectedDate = ref<string | null>(null);
-const handleDateSelect = (date: Temporal.PlainDate | null) => {
-  console.log('Date selected:', date?.toString());
-};
-</script>
-
+/************************************** STYLES ************************************************/
 <style>
 :root {
   /* Date Picker Theme Variables */
