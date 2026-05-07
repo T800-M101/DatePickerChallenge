@@ -2,35 +2,16 @@
   <div class="date-picker" :class="{ 'is-open': isOpen }">
     <!-- Input Field -->
     <div class="date-picker__input-wrapper">
-      <input
-        ref="inputRef"
-        type="text"
-        :value="displayValue"
-        :placeholder="placeholder"
-        class="date-picker__input"
-        @focus="handleInputFocus"
-        @click="handleInputClick"
-        @keydown="handleInputKeydown"
-        readonly
-      />
-      <button
-        type="button"
-        class="date-picker__clear-btn"
-        v-if="displayValue && showClearButton"
-        @click="handleClear"
-        aria-label="Clear date"
-      >
+      <input ref="inputRef" type="text" :value="displayValue" :placeholder="placeholder" class="date-picker__input"
+        @focus="handleInputFocus" @click="handleInputClick" @keydown="handleInputKeydown" readonly />
+      <button type="button" class="date-picker__clear-btn" v-if="displayValue && showClearButton" @click="handleClear"
+        aria-label="Clear date">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <line x1="18" y1="6" x2="6" y2="18"></line>
           <line x1="6" y1="6" x2="18" y2="18"></line>
         </svg>
       </button>
-      <button
-        type="button"
-        class="date-picker__calendar-btn"
-        @click="toggleCalendar"
-        aria-label="Open calendar"
-      >
+      <button type="button" class="date-picker__calendar-btn" @click="toggleCalendar" aria-label="Open calendar">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
           <line x1="16" y1="2" x2="16" y2="6"></line>
@@ -41,20 +22,10 @@
     </div>
 
     <!-- Calendar Popover -->
-    <div 
-      v-if="isOpen" 
-      class="date-picker__popover" 
-      ref="popoverRef"
-      @keydown.esc="closeCalendar"
-    >
+    <div v-if="isOpen" class="date-picker__popover" ref="popoverRef" @keydown.esc="closeCalendar">
       <!-- Header -->
       <div class="date-picker__header">
-        <button
-          type="button"
-          class="date-picker__nav-btn"
-          @click="handlePrevYear"
-          aria-label="Previous year"
-        >
+        <button type="button" class="date-picker__nav-btn" @click="handlePrevYear" aria-label="Previous year">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <polyline points="15 18 9 12 15 6"></polyline>
           </svg>
@@ -62,40 +33,25 @@
             <polyline points="15 18 9 12 15 6"></polyline>
           </svg>
         </button>
-        
-        <button
-          type="button"
-          class="date-picker__nav-btn"
-          @click="handlePrevMonth"
-          aria-label="Previous month"
-        >
+
+        <button type="button" class="date-picker__nav-btn" @click="handlePrevMonth" aria-label="Previous month">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <polyline points="15 18 9 12 15 6"></polyline>
           </svg>
         </button>
-        
+
         <div class="date-picker__month-year">
           <span class="date-picker__month">{{ monthLabel.split(' ')[0] }}</span>
           <span class="date-picker__year">{{ monthLabel.split(' ')[1] }}</span>
         </div>
-        
-        <button
-          type="button"
-          class="date-picker__nav-btn"
-          @click="handleNextMonth"
-          aria-label="Next month"
-        >
+
+        <button type="button" class="date-picker__nav-btn" @click="handleNextMonth" aria-label="Next month">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <polyline points="9 18 15 12 9 6"></polyline>
           </svg>
         </button>
-        
-        <button
-          type="button"
-          class="date-picker__nav-btn"
-          @click="handleNextYear"
-          aria-label="Next year"
-        >
+
+        <button type="button" class="date-picker__nav-btn" @click="handleNextYear" aria-label="Next year">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <polyline points="9 18 15 12 9 6"></polyline>
           </svg>
@@ -107,59 +63,35 @@
 
       <!-- Week Day Headers -->
       <div class="date-picker__weekdays">
-        <div 
-          v-for="(day, index) in weekDayHeaders" 
-          :key="index"
-          class="date-picker__weekday"
-        >
+        <div v-for="(day, index) in weekDayHeaders" :key="index" class="date-picker__weekday">
           {{ day }}
         </div>
       </div>
 
       <!-- Calendar Grid -->
-    <div
-  class="date-picker__grid"
-  @keydown="handleCalendarKeydown"
->
-  <button
-    v-for="(day, index) in flatGrid"
-    :key="index"
-    :tabindex="index === focusedIndex ? 0 : -1"
-    :class="[
-      'date-picker__day',
-      {
-        'date-picker__day--focused': index === focusedIndex,
-        'date-picker__day--current-month': day.isCurrentMonth,
-        'date-picker__day--other-month': !day.isCurrentMonth,
-        'date-picker__day--today': day.isToday,
-        'date-picker__day--selected': day.isSelected,
-        'date-picker__day--disabled': day.isDisabled
-      }
-    ]"
-    @click="handleDateSelect(day)"
-    @keydown="handleCalendarKeydown"
-    :disabled="day.isDisabled"
-    :aria-label="`Select ${day.date.toString()}`"
-    :aria-selected="day.isSelected"
-  >
-    {{ day.date.day }}
-  </button>
-</div>
+      <div class="date-picker__grid">
+        <button v-for="(day, index) in flatGrid" :key="index" :tabindex="index === focusedIndex ? 0 : -1" :class="[
+          'date-picker__day',
+          {
+            'date-picker__day--focused': index === focusedIndex,
+            'date-picker__day--current-month': day.isCurrentMonth,
+            'date-picker__day--other-month': !day.isCurrentMonth,
+            'date-picker__day--today': day.isToday,
+            'date-picker__day--selected': day.isSelected,
+            'date-picker__day--disabled': day.isDisabled
+          }
+        ]" @click="handleDateSelect(day)" @keydown="handleCalendarKeydown" :disabled="day.isDisabled"
+          :aria-label="`Select ${day.date.toString()}`" :aria-selected="day.isSelected">
+          {{ day.date.day }}
+        </button>
+      </div>
 
       <!-- Footer -->
       <div class="date-picker__footer">
-        <button
-          type="button"
-          class="date-picker__footer-btn"
-          @click="handleGoToToday"
-        >
+        <button type="button" class="date-picker__footer-btn" @click="handleGoToToday">
           Today
         </button>
-        <button
-          type="button"
-          class="date-picker__footer-btn"
-          @click="handleClearSelection"
-        >
+        <button type="button" class="date-picker__footer-btn" @click="handleClearSelection">
           Clear
         </button>
       </div>
@@ -384,46 +316,38 @@ const handleInputKeydown = async (
 const handleCalendarKeydown = async (
   event: KeyboardEvent
 ) => {
-  const total = flatGrid.value.length;
+  let nextIndex = focusedIndex.value;
 
   switch (event.key) {
     case 'ArrowRight':
       event.preventDefault();
-
-      focusedIndex.value =
-        (focusedIndex.value + 1) % total;
+      nextIndex++;
       break;
 
     case 'ArrowLeft':
       event.preventDefault();
-
-      focusedIndex.value =
-        (focusedIndex.value - 1 + total) % total;
+      nextIndex--;
       break;
 
     case 'ArrowDown':
       event.preventDefault();
-
-      focusedIndex.value =
-        (focusedIndex.value + 7) % total;
+      nextIndex += 7;
       break;
 
     case 'ArrowUp':
       event.preventDefault();
-
-      focusedIndex.value =
-        (focusedIndex.value - 7 + total) % total;
+      nextIndex -= 7;
       break;
 
     case 'Enter':
     case ' ':
       event.preventDefault();
 
-      const day =
+      const selectedDay =
         flatGrid.value[focusedIndex.value];
 
-      if (day && !day.isDisabled) {
-        handleDateSelect(day);
+      if (selectedDay && !selectedDay.isDisabled) {
+        handleDateSelect(selectedDay);
       }
 
       return;
@@ -431,7 +355,83 @@ const handleCalendarKeydown = async (
     case 'Escape':
       closeCalendar();
       return;
+
+    default:
+      return;
   }
+
+  // Prevent invalid indexes
+  if (nextIndex < 0) {
+    engine.prevMonth();
+    updateState();
+
+    await nextTick();
+
+    focusedIndex.value =
+      flatGrid.value.length - 1;
+
+    await focusCurrentDay();
+    return;
+  }
+
+  if (nextIndex >= flatGrid.value.length) {
+    engine.nextMonth();
+    updateState();
+
+    await nextTick();
+
+    focusedIndex.value = 0;
+
+    await focusCurrentDay();
+    return;
+  }
+
+  const currentDay =
+    flatGrid.value[focusedIndex.value];
+
+  const nextDay =
+    flatGrid.value[nextIndex];
+
+  // Auto change month when moving into
+  // previous/next month cells
+  if (
+    nextDay.date.month >
+    currentDay.date.month ||
+    nextDay.date.year >
+    currentDay.date.year
+  ) {
+    engine.nextMonth();
+    updateState();
+
+    await nextTick();
+  }
+
+  if (
+    nextDay.date.month <
+    currentDay.date.month ||
+    nextDay.date.year <
+    currentDay.date.year
+  ) {
+    engine.prevMonth();
+    updateState();
+
+    await nextTick();
+  }
+
+  // Find same date in new grid
+  const updatedIndex =
+    flatGrid.value.findIndex(
+      (day) =>
+        Temporal.PlainDate.compare(
+          day.date,
+          nextDay.date
+        ) === 0
+    );
+
+  focusedIndex.value =
+    updatedIndex >= 0
+      ? updatedIndex
+      : nextIndex;
 
   await focusCurrentDay();
 };
@@ -583,6 +583,7 @@ watch(
     opacity: 0;
     transform: translateY(-10px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);

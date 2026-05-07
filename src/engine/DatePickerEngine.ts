@@ -1,26 +1,36 @@
-import { Temporal } from '@js-temporal/polyfill'
+import { Temporal } from "@js-temporal/polyfill";
 import type {
   CalendarDay,
   CalendarWeek,
   CalendarState,
   IDatePickerEngine,
-} from './types'
+} from "./types";
 
-const WEEK_DAYS = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa']
+const WEEK_DAYS = ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"];
 
 const MONTH_NAMES = [
-  'January', 'February', 'March', 'April', 'May', 'June',
-  'July', 'August', 'September', 'October', 'November', 'December',
-]
+  "January",
+  "February",
+  "March",
+  "April",
+  "May",
+  "June",
+  "July",
+  "August",
+  "September",
+  "October",
+  "November",
+  "December",
+];
 
 export class DatePickerEngine implements IDatePickerEngine {
-  private viewDate: Temporal.PlainDate
-  private selectedDate: Temporal.PlainDate | null = null
-  private today: Temporal.PlainDate
+  private viewDate: Temporal.PlainDate;
+  private selectedDate: Temporal.PlainDate | null = null;
+  private today: Temporal.PlainDate;
 
   constructor(initialDate?: Temporal.PlainDate) {
-    this.today = Temporal.Now.plainDateISO()
-    this.viewDate = initialDate ?? this.today
+    this.today = Temporal.Now.plainDateISO();
+    this.viewDate = initialDate ?? this.today;
   }
 
   // ── Public API ────────────────────────────────────────
@@ -34,38 +44,38 @@ export class DatePickerEngine implements IDatePickerEngine {
       grid: this.buildGrid(),
       monthLabel: `${MONTH_NAMES[this.viewDate.month - 1]} ${this.viewDate.year}`,
       weekDayHeaders: WEEK_DAYS,
-    }
+    };
   }
 
   nextMonth(): void {
-    this.viewDate = this.viewDate.add({ months: 1 })
+    this.viewDate = this.viewDate.add({ months: 1 });
   }
 
   prevMonth(): void {
-    this.viewDate = this.viewDate.subtract({ months: 1 })
+    this.viewDate = this.viewDate.subtract({ months: 1 });
   }
 
   nextYear(): void {
-    this.viewDate = this.viewDate.add({ years: 1 })
+    this.viewDate = this.viewDate.add({ years: 1 });
   }
 
   prevYear(): void {
-    this.viewDate = this.viewDate.subtract({ years: 1 })
+    this.viewDate = this.viewDate.subtract({ years: 1 });
   }
 
   selectDate(date: Temporal.PlainDate): void {
-    this.selectedDate = date
+    this.selectedDate = date;
     // Sync view to the selected month
-    this.viewDate = date
+    this.viewDate = date;
   }
 
   goToToday(): void {
-    this.viewDate = this.today
-    this.selectedDate = this.today
+    this.viewDate = this.today;
+    this.selectedDate = this.today;
   }
 
   clearSelection(): void {
-    this.selectedDate = null
+    this.selectedDate = null;
   }
 
   // ── Private helpers ───────────────────────────────────
@@ -78,45 +88,45 @@ export class DatePickerEngine implements IDatePickerEngine {
    * We normalize to 0=Sunday … 6=Saturday.
    */
   private buildGrid(): CalendarWeek[] {
-    const firstOfMonth = this.viewDate.with({ day: 1 })
+    const firstOfMonth = this.viewDate.with({ day: 1 });
 
     // Temporal uses ISO weekday: 1=Mon, 7=Sun → convert to 0=Sun
-    const rawDayOfWeek = firstOfMonth.dayOfWeek % 7  // Mon=1→1, Sun=7→0
-    const startOffset = rawDayOfWeek                  // days to go back
+    const rawDayOfWeek = firstOfMonth.dayOfWeek % 7; // Mon=1→1, Sun=7→0
+    const startOffset = rawDayOfWeek; // days to go back
 
     // Start of the grid (Sunday of the first week)
-    const gridStart = firstOfMonth.subtract({ days: startOffset })
+    const gridStart = firstOfMonth.subtract({ days: startOffset });
 
-    const grid: CalendarWeek[] = []
+    const grid: CalendarWeek[] = [];
 
     for (let week = 0; week < 6; week++) {
-      const row: CalendarDay[] = []
+      const row: CalendarDay[] = [];
       for (let day = 0; day < 7; day++) {
-        const date = gridStart.add({ days: week * 7 + day })
-        row.push(this.buildDay(date))
+        const date = gridStart.add({ days: week * 7 + day });
+        row.push(this.buildDay(date));
       }
-      grid.push(row)
+      grid.push(row);
     }
 
-    return grid
+    return grid;
   }
 
   private buildDay(date: Temporal.PlainDate): CalendarDay {
     return {
       date,
-      isCurrentMonth: date.month === this.viewDate.month && date.year === this.viewDate.year,
+      isCurrentMonth:
+        date.month === this.viewDate.month && date.year === this.viewDate.year,
       isToday: Temporal.PlainDate.compare(date, this.today) === 0,
       isSelected: this.selectedDate
         ? Temporal.PlainDate.compare(date, this.selectedDate) === 0
         : false,
-      isDisabled: false,   // extend here: e.g. date < minDate || date > maxDate
-    }
+      isDisabled: false, // extend here: e.g. date < minDate || date > maxDate
+    };
   }
 
   private formatDisplayValue(): string {
-    if (!this.selectedDate) return ''
-    const { year, month, day } = this.selectedDate
-    return `${String(month).padStart(2, '0')}/${String(day).padStart(2, '0')}/${year}`
+    if (!this.selectedDate) return "";
+    const { year, month, day } = this.selectedDate;
+    return `${String(month).padStart(2, "0")}/${String(day).padStart(2, "0")}/${year}`;
   }
 }
-

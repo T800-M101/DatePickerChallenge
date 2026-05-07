@@ -5,14 +5,10 @@
         Professional Date Picker
         <span class="demo-badge">Vue 3 + Temporal API</span>
       </h1>
-      
+
       <div class="demo-section">
         <h2 class="demo-subtitle">Please pick a date</h2>
-        <DatePicker 
-          v-model="selectedDate"
-          placeholder="Choose a date"
-          @select="handleDateSelect"
-        />
+        <DatePicker v-model="selectedDate" placeholder="Choose a date" @select="handleDateSelect" />
         <p class="demo-info" v-if="selectedDate">
           Selected: <strong>{{ selectedDate }}</strong>
         </p>
@@ -31,7 +27,7 @@
           <li>✅ Smooth animations</li>
         </ul>
       </div>
-      
+
     </div>
   </div>
 </template>
@@ -59,16 +55,16 @@ const handleDateSelect = (date: Temporal.PlainDate | null) => {
   --date-picker-input-color: #1a1a1a;
   --date-picker-input-hover-border: #a0a0a0;
   --date-picker-input-focus-border: #667eea;
-  
+
   --date-picker-icon-color: #999;
   --date-picker-icon-hover-color: #667eea;
-  
+
   --date-picker-popover-bg: white;
   --date-picker-popover-border-radius: 16px;
   --date-picker-popover-shadow: 0 20px 60px rgba(0, 0, 0, 0.12);
   --date-picker-popover-padding: 20px;
   --date-picker-popover-min-width: 300px;
-  
+
   --date-picker-header-border: 1px solid #f0f0f0;
   --date-picker-nav-color: #666;
   --date-picker-nav-hover-bg: #f5f5f5;
@@ -76,24 +72,24 @@ const handleDateSelect = (date: Temporal.PlainDate | null) => {
   --date-picker-month-size: 15px;
   --date-picker-month-color: #1a1a1a;
   --date-picker-year-color: #666;
-  
+
   --date-picker-weekday-size: 12px;
   --date-picker-weekday-color: #999;
-  
+
   --date-picker-day-size: 13px;
   --date-picker-day-border-radius: 8px;
   --date-picker-day-color: #333;
   --date-picker-day-hover-bg: #f5f5f5;
   --date-picker-day-current-month-color: #1a1a1a;
   --date-picker-day-other-month-color: #ccc;
-  
+
   --date-picker-today-bg: #f0e6ff;
   --date-picker-today-color: #667eea;
-  
+
   --date-picker-selected-bg: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   --date-picker-selected-color: white;
   --date-picker-selected-hover-bg: #5a67d8;
-  
+
   --date-picker-footer-border: 1px solid #f0f0f0;
   --date-picker-footer-btn-size: 13px;
   --date-picker-footer-btn-radius: 6px;
@@ -210,7 +206,7 @@ body {
   .demo-container {
     padding: 24px;
   }
-  
+
   .demo-title {
     font-size: 24px;
   }
