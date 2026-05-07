@@ -16,7 +16,9 @@ const features = [
   'Accessible (ARIA labels, keyboard support)',
   'CSS Custom Properties for theming',
   'Responsive design',
-  'Smooth animations'
+  'Smooth animations',
+  'Unit tested logic for zero-bug date arithmetic', 
+  'Enterprise-grade deployment on AWS infrastructure' 
 ];
 </script>
 

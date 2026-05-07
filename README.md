@@ -115,3 +115,5 @@ Tests are located in `src/engine/DatePickerEngine.test.ts` and cover:
 - Month and year navigation including year rollover
 - Date selection, display formatting, and clearing
 - State shape (monthLabel, weekDayHeaders)
+
+## Project deployed at: https://d2ye34rgjsd5k4.cloudfront.net/
