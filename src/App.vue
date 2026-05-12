@@ -44,7 +44,8 @@ const features = [
 
         <ul class="demo-features">
           <li v-for="feature in features" :key="feature">
-            ✅ {{ feature }}
+            <span>✅</span>
+            {{ feature }}
           </li>
         </ul>
       </div>
@@ -195,9 +196,17 @@ body {
   color: #555;
   font-size: 14px;
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 8px;
+  line-height: 1.5;
+  text-align: left; 
 }
+
+.demo-features li span {
+  flex-shrink: 0;
+  line-height: 1.5;
+}
+
 
 .css-vars-demo {
   background: #f8f9fa;
